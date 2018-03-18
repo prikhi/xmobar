@@ -382,23 +382,23 @@ instance Exec Kbd where
         alias (Kbd _) = "kbd"
         start (Kbd opts) cb = do
 
-        dpy <- openDisplay ""
+            dpy <- openDisplay ""
 
-        -- initial set of layout
-        cb =<< getKbdLay dpy opts
-
-        -- enable listing for
-        -- group changes
-        _ <- xkbSelectEventDetails dpy xkbUseCoreKbd xkbStateNotify xkbAllStateComponentsMask xkbGroupStateMask
-        -- layout/geometry changes
-        _ <- xkbSelectEvents dpy  xkbUseCoreKbd xkbNewKeyboardNotifyMask xkbNewKeyboardNotifyMask
-
-        allocaXEvent $ \e -> forever $ do
-            nextEvent' dpy e
-            _ <- getEvent e
+            -- initial set of layout
             cb =<< getKbdLay dpy opts
 
-        closeDisplay dpy
-        return ()
+            -- enable listing for
+            -- group changes
+            _ <- xkbSelectEventDetails dpy xkbUseCoreKbd xkbStateNotify xkbAllStateComponentsMask xkbGroupStateMask
+            -- layout/geometry changes
+            _ <- xkbSelectEvents dpy  xkbUseCoreKbd xkbNewKeyboardNotifyMask xkbNewKeyboardNotifyMask
+
+            allocaXEvent $ \e -> forever $ do
+                nextEvent' dpy e
+                _ <- getEvent e
+                cb =<< getKbdLay dpy opts
+
+            closeDisplay dpy
+            return ()
 
 -- vim:ft=haskell:ts=4:shiftwidth=4:softtabstop=4:expandtab:foldlevel=20:
