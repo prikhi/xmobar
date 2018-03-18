@@ -1,0 +1,240 @@
+name:               xmobar
+version:            0.25
+
+homepage:           http://xmobar.org
+github:             jaor/xmobar
+synopsis:           A Minimalistic Text Based Status Bar
+description: |
+    Xmobar is a minimalistic text based status bar.
+
+    Inspired by the Ion3 status bar, it supports similar
+    features, like dynamic color management, output templates,
+    and extensibility through plugins.
+category:           System
+license:            BSD3
+license-file:       license
+author:             Andrea Rossato and Jose A. Ortega Ruiz
+maintainer:         Jose A. Ortega Ruiz <jao@gnu.org>
+bug-reports:        https://github.com/jaor/xmobar/issues
+
+extra-source-files:
+    - readme.md
+    - changelog.md
+    - samples/xmobar.config
+    - samples/xmonadpropwrite.hs
+    - samples/Plugins/helloworld.config
+    - samples/Plugins/HelloWorld.hs
+
+
+dependencies:
+    - base >= 4.0 && < 5
+    - X11 >= 1.6.1
+    - containers
+    - directory
+    - filepath
+    - unix
+
+ghc-options:
+    - -Wall
+    - -fno-warn-unused-do-bind
+    - -funbox-strict-fields
+
+when:
+    #-- -threaded is a workaround for 100% CPU busy loop
+    #-- (http://hackage.haskell.org/trac/ghc/ticket/4934).
+    #-- See also comments in https://github.com/jaor/xmobar/pull/36
+    - condition: flag(with_threaded)
+      ghc-options: -threaded
+      cpp-options: -DTHREADED_RUNTIME
+
+
+executable:
+    main: Main.hs
+    source-dirs: app
+    dependencies:
+        - xmobar
+    when:
+        - condition: flag(with_rtsopts)
+          ghc-options: -with-rtsopts=-V0
+
+tests:
+    XmobarTest:
+        main: Spec.hs
+        source-dirs: test
+        dependencies:
+          - xmobar
+          - hspec
+
+library:
+    source-dirs: src
+    extra-libraries:
+        - Xrandr
+        - Xrender
+    dependencies:
+        - base >= 4.0 && < 5
+        - mtl >= 2.1 && < 2.3
+        - parsec == 3.1.*
+        - stm >= 2.3 && < 2.5
+        - bytestring
+        - old-locale
+        - process
+        - regex-compat
+        - time
+        - transformers
+    when:
+        - condition: flag(with_xft) || flag(all_extensions)
+          dependencies:
+            - utf8-string >= 0.3 && < 1.1
+            - X11-xft >= 0.2 && < 0.4
+          exposed-modules: Xmobar.MinXft
+          cpp-options: -DXFT
+
+        - condition: flag(with_utf8) || flag(all_extensions)
+          dependencies: utf8-string >= 0.3 && < 1.1
+          cpp-options: -DUTF8
+
+        - condition: flag(with_inotify) || flag(all_extensions)
+          dependencies: hinotify == 0.3.*
+          exposed-modules: [Xmobar.Plugins.Mail, Xmobar.Plugins.MBox]
+          cpp-options: -DINOTIFY
+
+        - condition: flag(with_iwlib) || flag(all_extensions)
+          extra-libraries: iw
+          dependencies: iwlib >= 0.1.0 && < 0.2
+          exposed-modules: Xmobar.Plugins.Monitors.Wireless
+          cpp-options: -DIWLIB
+
+        - condition: flag(with_mpd) || flag(all_extensions)
+          dependencies: libmpd >= 0.9.0.6
+          exposed-modules: Xmobar.Plugins.Monitors.MPD
+          cpp-options: -DLIBMPD
+
+        - condition: flag(with_alsa) || flag(all_extensions)
+          dependencies:
+            - alsa-core == 0.5.*
+            - alsa-mixer > 0.2.0.2
+          exposed-modules: Xmobar.Plugins.Monitors.Volume
+          cpp-options: -DALSA
+
+        - condition: flag(with_datezone) || flag(all_extensions)
+          dependencies:
+            - timezone-olson == 0.1.*
+            - timezone-series == 0.1.*
+          exposed-modules: Xmobar.Plugins.DateZone
+          cpp-options: -DDATEZONE
+
+        - condition: flag(with_mpris) || flag(all_extensions)
+          dependencies: dbus >= 0.10
+          exposed-modules: Xmobar.Plugins.Monitors.Mpris
+          cpp-options: -DMPRIS
+
+        - condition: flag(with_dbus) || flag(all_extensions)
+          dependencies: dbus >= 0.10
+          exposed-modules: Xmobar.IPC.DBus
+          cpp-options: -DDBUS
+
+        - condition: flag(with_xpm) || flag(all_extensions)
+          extra-libraries: Xpm
+          exposed-modules: Xmobar.XPMFile
+          cpp-options: -DXPM
+
+        - condition: flag(with_weather) || flag(all_extensions)
+          dependencies: HTTP >= 4000.2.4
+          exposed-modules: Xmobar.Plugins.Monitors.Weather
+          cpp-options: -DWEATHER
+          when:
+            - condition: flag(with_conduit)
+              #-- use http-conduit  instead of simple-http
+              dependencies:
+                - http-conduit
+                - http-types
+              cpp-options: -DHTTP_CONDUIT
+
+        - condition: flag(with_uvmeter) && flag(with_conduit)
+          exposed-modules: Xmobar.Plugins.Monitors.UVMeter
+          dependencies:
+            - http-conduit
+            - http-types
+          cpp-options: -DUVMETER
+
+
+flags:
+    with_xft:
+        description: Use Xft to render text. UTF-8 support included.
+        default: False
+        manual: False
+
+    with_utf8:
+        description: With UTF-8 support.
+        default: True
+        manual: False
+
+    with_inotify:
+        description: inotify support (modern Linux only). Required for the Mail and MBox plugins.
+        default: False
+        manual: False
+
+    with_iwlib:
+        description: Wireless info support. Required for the Wireless plugin, needs iwlib installed.
+        default: False
+        manual: False
+
+    with_mpd:
+        description: MPD support. Needs libmpd installed.
+        default: False
+        manual: False
+
+    all_extensions:
+        description: Includes all optional extensions.
+        default: False
+        manual: False
+
+    with_alsa:
+        description: Use alsa-mixer to get the volume from soundcards.
+        default: False
+        manual: False
+
+    with_datezone:
+        description: Enables localized date support.
+        default: False
+        manual: False
+
+    with_mpris:
+        description: MPRIS v1, v2 support.
+        default: False
+        manual: False
+
+    with_dbus:
+        description: Publish a service on the session bus for controlling xmobar.
+        default: False
+        manual: False
+
+    with_xpm:
+        description: Enable usage of xpm for icons
+        default: False
+        manual: False
+
+    with_threaded:
+        description: Use threaded runtime.
+        default: False
+        manual: False
+
+    with_rtsopts:
+        description: Use -with-rtsopts=-V0 to reduce wakeups
+        default: True
+        manual: False
+
+    with_uvmeter:
+        description: UVMeter only useful to australians.
+        default: False
+        manual: False
+
+    with_weather:
+        description: Enable weather plugin
+        default: True
+        manual: False
+
+    with_conduit:
+        description: Use http-conduits for getting weather data, only has an effect if with_weather is set.
+        default: False
+        manual: False
