@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE TypeOperators #-}
 
 -----------------------------------------------------------------------------
@@ -38,10 +39,14 @@ import Xmobar.Plugins.EWMH
 import Xmobar.Plugins.Kbd
 import Xmobar.Plugins.Locks
 
+#ifdef INOTIFY
 import Xmobar.Plugins.Mail
 import Xmobar.Plugins.MBox
+#endif
 
+#ifdef DATEZONE
 import Xmobar.Plugins.DateZone
+#endif
 
 -- $config
 -- Configuration data type and default configuration
@@ -152,7 +157,12 @@ infixr :*:
 -- the plugin's type to the list of types (separated by ':*:') appearing in
 -- this function's type signature.
 runnableTypes :: Command :*: Monitors :*: Date :*: PipeReader :*: BufferedPipeReader :*: CommandReader :*: StdinReader :*: XMonadLog :*: EWMH :*: Kbd :*: Locks :*:
+#ifdef INOTIFY
                  Mail :*: MBox :*:
-                 DateZone :*: MarqueePipeReader :*:
+#endif
+#ifdef DATEZONE
+                 DateZone :*:
+#endif
+                 MarqueePipeReader :*:
                  ()
 runnableTypes = undefined
