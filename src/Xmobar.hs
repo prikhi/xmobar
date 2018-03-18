@@ -46,24 +46,24 @@ import Data.Bits
 import Data.Map hiding (foldr, map, filter)
 import Data.Maybe (fromJust, isJust)
 
-import Bitmap
-import Config
-import Parsers
-import Commands
-import Actions
-import Runnable
-import Signal
-import Window
-import XUtil
-import ColorCache
+import Xmobar.Bitmap as Bitmap
+import Xmobar.Config
+import Xmobar.Parsers
+import Xmobar.Commands
+import Xmobar.Actions
+import Xmobar.Runnable
+import Xmobar.Signal
+import Xmobar.Window
+import Xmobar.XUtil
+import Xmobar.ColorCache
 
 #ifdef XFT
 import Graphics.X11.Xft
-import MinXft (drawBackground)
+import Xmobar.MinXft (drawBackground)
 #endif
 
 #ifdef DBUS
-import IPC.DBus
+import Xmobar.IPC.DBus
 #endif
 
 -- $main

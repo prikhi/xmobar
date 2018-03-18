@@ -4,7 +4,7 @@ module Plugins.Monitors.CommonSpec
   ) where
 
 import Test.Hspec
-import Plugins.Monitors.Common
+import Xmobar.Plugins.Monitors.Common
 
 main :: IO ()
 main = hspec spec
