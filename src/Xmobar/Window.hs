@@ -21,6 +21,7 @@ import Control.Monad (when, unless)
 import Graphics.X11.Xlib hiding (textExtents)
 import Graphics.X11.Xlib.Extras
 import Graphics.X11.Xinerama
+import Foreign (alloca, peek)
 import Foreign.C.Types (CLong)
 
 import Data.Function (on)
@@ -196,8 +197,13 @@ showWindow r c d w = do
     sync d False
 
 isMapped :: Display -> Window -> IO Bool
-isMapped d w = ism <$> getWindowAttributes d w
+isMapped d w = maybe False ism <$> safeGetWindowAttributes
     where ism WindowAttributes { wa_map_state = wms } = wms /= waIsUnmapped
+          safeGetWindowAttributes = alloca $ \p -> do
+              s <- xGetWindowAttributes d w p
+              case s of
+                  0 -> return Nothing
+                  _ -> Just <$> peek p
 
 borderOffset :: (Integral a) => Border -> Int -> a
 borderOffset b lw =
