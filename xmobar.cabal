@@ -129,6 +129,7 @@ library
                    Xmobar.Plugins.CommandReader,
                    Xmobar.Plugins.Date,
                    Xmobar.Plugins.EWMH,
+                   Xmobar.Plugins.HandleReader,
                    Xmobar.Plugins.PipeReader,
                    Xmobar.Plugins.MarqueePipeReader,
                    Xmobar.Plugins.StdinReader,

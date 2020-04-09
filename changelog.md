@@ -1,3 +1,10 @@
+## Version 0.34 (Unreleased)
+
+_New features_
+
+  - New plugin `HandleReader` for reading data from a Haskell `Handle`. This is
+    useful if you are running xmobar from within a Haskell program.
+
 ## Version 0.33 (February, 2020)
 
 _New features_

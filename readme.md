@@ -1613,6 +1613,23 @@ will display "N/A" if for some reason the `date` invocation fails.
           logHook = dynamicLogString myPP >>= xmonadPropLog
         }
 
+### `HandleReader Handle Alias`
+
+- Display data from a Haskell `Handle`
+- This plugin is only useful if you are running xmobar from another Haskell
+  program like XMonad.
+- You can use `System.Process.createPipe` to create a pair of `read` & `write`
+  Handles. Pass the `read` Handle to HandleReader and write your output to the
+  `write` Handle:
+
+        (readHandle, writeHandle) <- createPipe
+        xmobarProcess <- forkProcess $ xmobar myConfig
+                { commands =
+                    Run (HandleReader readHandle "handle") : commands myConfig
+                }
+        hPutStr writeHandle "Hello World"
+
+
 # Plugins
 
 ## Writing a Plugin
