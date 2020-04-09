@@ -1,9 +1,12 @@
 {-# OPTIONS_GHC -Wall #-}
+{-# LANGUAGE CPP #-}
+
 module Xmobar.Plugins.Monitors.AlsaSpec
   ( main
   , spec
   ) where
 
+#ifdef ALSA
 import Control.Concurrent
 import Control.Concurrent.Async
 import Control.Monad
@@ -158,3 +161,11 @@ withFifoWriteHandle fifoPath body = do
       $ \(Just h) _ _ _ -> do
         hSetBuffering h LineBuffering
         body h
+#else
+-- These No-Op values are required for HSpec's test discovery.
+main :: IO ()
+main = return ()
+
+spec :: Monad m => m ()
+spec = return ()
+#endif
